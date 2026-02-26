@@ -1,16 +1,18 @@
 /* ============================================
    Medical Care Connect — Main App
-   Apple Light Theme + Google Maps + Logout
+   Apple Light Theme + Leaflet Maps + Logout
    ============================================ */
 
 import '../css/variables.css';
 import '../css/base.css';
 import '../css/components.css';
 import '../css/pages.css';
+import 'leaflet/dist/leaflet.css';
 
+import L from 'leaflet';
 import { getState, setState, subscribe, resetState } from './utils/state.js';
 import { registerRoute, registerEvents, navigate, renderCurrentPage } from './utils/router.js';
-import { showToast } from './components/notification.js';
+import { showToast, oneShot } from './components/notification.js';
 import {
   hospitals, ambulances, trackingCodes, MAP_CENTER, MAP_ZOOM,
   getStatusLabel, getStatusClass, getCapacityColor, getCapacityPercent
@@ -18,57 +20,74 @@ import {
 
 const app = document.getElementById('app');
 
-// Google Maps instances
+// Fix Leaflet default icon paths
+delete L.Icon.Default.prototype._getIconUrl;
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon-2x.png',
+  iconUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-icon.png',
+  shadowUrl: 'https://unpkg.com/leaflet@1.9.4/dist/images/marker-shadow.png',
+});
+
+// Leaflet map instances
 let mapInstances = {};
 
+// Hospitals within 6km
+const nearbyHospitals = hospitals.filter(h => h.distance <= 6);
+
 // ============================================
-// GOOGLE MAPS HELPER
+// LEAFLET MAP HELPER
 // ============================================
 function initMap(containerId, options = {}) {
   const container = document.getElementById(containerId);
-  if (!container || !window.google) return null;
+  if (!container) return null;
 
-  const map = new google.maps.Map(container, {
-    center: options.center || MAP_CENTER,
+  // Destroy old instance if exists
+  if (mapInstances[containerId]) {
+    mapInstances[containerId].remove();
+    delete mapInstances[containerId];
+  }
+
+  const center = options.center || MAP_CENTER;
+  const map = L.map(containerId, {
+    center: [center.lat, center.lng],
     zoom: options.zoom || MAP_ZOOM,
-    disableDefaultUI: true,
     zoomControl: true,
-    mapId: 'medical_connect_map',
-    styles: [
-      { featureType: 'poi.medical', elementType: 'geometry', stylers: [{ visibility: 'on' }] },
-      { featureType: 'poi.business', stylers: [{ visibility: 'off' }] },
-      { featureType: 'transit', stylers: [{ visibility: 'simplified' }] },
-    ],
+    attributionControl: false,
   });
 
-  if (options.markers) {
-    options.markers.forEach(m => {
-      const marker = new google.maps.Marker({
-        position: { lat: m.lat, lng: m.lng },
-        map,
-        title: m.title,
-        icon: m.icon ? {
-          url: `data:image/svg+xml;charset=UTF-8,${encodeURIComponent(m.icon)}`,
-          scaledSize: new google.maps.Size(32, 32),
-        } : undefined,
-      });
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19,
+  }).addTo(map);
 
-      if (m.label) {
-        const infoWindow = new google.maps.InfoWindow({ content: `<div style="font-family:-apple-system,sans-serif;padding:4px 0;"><strong>${m.title}</strong><br><span style="color:#636366;font-size:12px;">${m.label}</span></div>` });
-        marker.addListener('click', () => infoWindow.open(map, marker));
-      }
-    });
+  // 6km radius circle for nearby view
+  if (options.showRadius) {
+    L.circle([center.lat, center.lng], {
+      radius: 6000,
+      color: '#007aff',
+      fillColor: '#007aff',
+      fillOpacity: 0.06,
+      weight: 1.5,
+      dashArray: '6 4',
+    }).addTo(map);
   }
+
+  if (options.markers) {
+    const bounds = [];
+    options.markers.forEach(m => {
+      const marker = L.marker([m.lat, m.lng]).addTo(map);
+      if (m.title || m.label) {
+        marker.bindPopup(`<div style="font-family:-apple-system,sans-serif;"><strong>${m.title || ''}</strong>${m.label ? '<br><span style="color:#636366;font-size:12px;">' + m.label + '</span>' : ''}</div>`);
+      }
+      bounds.push([m.lat, m.lng]);
+    });
+    if (bounds.length > 1) map.fitBounds(bounds, { padding: [30, 30] });
+  }
+
+  // Force re-render after container is visible
+  setTimeout(() => map.invalidateSize(), 200);
 
   mapInstances[containerId] = map;
   return map;
-}
-
-function renderMapFallback(text) {
-  return `<div style="display:flex;align-items:center;justify-content:center;height:100%;color:var(--color-text-muted);font-size:var(--text-sm);flex-direction:column;gap:var(--space-2);background:var(--color-surface-1);border-radius:var(--radius-xl);">
-    <span style="font-size:1.5rem;">🗺️</span>
-    <span>${text}</span>
-  </div>`;
 }
 
 // ============================================
@@ -186,11 +205,11 @@ registerRoute('role-select', () => {
 registerEvents('role-select', () => {
   const homePages = { patient: 'patient-home', family: 'family-home', ambulance: 'ambulance-home', admin: 'admin-dashboard' };
   ['patient', 'family', 'ambulance', 'admin'].forEach(role => {
-    document.getElementById(`role-${role}`)?.addEventListener('click', () => {
+    document.getElementById(`role-${role}`)?.addEventListener('click', oneShot(`login-${role}`, () => {
       setState({ currentRole: role });
       navigate(homePages[role]);
       showToast({ title: `Welcome!`, message: `Logged in as ${role.charAt(0).toUpperCase() + role.slice(1)}`, icon: '👋', type: 'success', duration: 2500 });
-    });
+    }));
   });
 });
 
@@ -210,7 +229,7 @@ registerRoute('patient-home', () => {
             <div class="emergency-btn__icon">🏥</div>
             <div class="emergency-btn__text">
               <span class="emergency-btn__label">Find Nearest Hospital</span>
-              <span class="emergency-btn__sub">${hospitals.filter(h => h.status === 'available').length} hospitals available nearby</span>
+              <span class="emergency-btn__sub">${nearbyHospitals.filter(h => h.status === 'available').length} hospitals within 6 km</span>
             </div>
           </button>
           <button class="emergency-btn emergency-btn--ambulance" id="btn-request-ambulance">
@@ -239,11 +258,11 @@ registerRoute('patient-home', () => {
         </div>
       </div>
 
-      <div class="section-title">Nearby Hospitals</div>
+      <div class="section-title">Hospitals Within 6 km</div>
       <div class="hospitals-list">
-        ${hospitals.slice(0, 3).map(h => renderHospitalCard(h)).join('')}
+        ${nearbyHospitals.slice(0, 3).map(h => renderHospitalCard(h)).join('')}
       </div>
-      <button class="btn btn--apple btn--block mt-4" id="btn-view-all-hospitals">View All Hospitals →</button>
+      <button class="btn btn--apple btn--block mt-4" id="btn-view-all-hospitals">View All ${nearbyHospitals.length} Nearby →</button>
 
       ${state.ambulanceRequested ? `
         <div class="section-title">Active Tracking</div>
@@ -276,14 +295,17 @@ registerRoute('patient-hospitals', () => {
     ${renderHeader('Nearby Hospitals', true, 'patient-home')}
     <main class="page">
       <h1 class="page__title">Nearby Hospitals</h1>
-      <p class="page__subtitle">${hospitals.length} hospitals found near Chandigarh University</p>
+      <p class="page__subtitle">${nearbyHospitals.length} hospitals within 6 km of you</p>
 
-      <div class="map-container" id="map-hospitals">
-        ${renderMapFallback('Loading map...')}
-      </div>
+      <div class="map-container map-container--large" id="map-hospitals"></div>
 
       <div class="hospitals-list">
-        ${hospitals.map(h => renderHospitalCard(h)).join('')}
+        ${nearbyHospitals.map(h => renderHospitalCard(h)).join('')}
+      </div>
+
+      <div class="section-title" style="margin-top:var(--space-6);">All Hospitals</div>
+      <div class="hospitals-list">
+        ${hospitals.filter(h => h.distance > 6).map(h => renderHospitalCard(h)).join('')}
       </div>
     </main>
     ${renderBottomNav('patient', 'patient-hospitals')}
@@ -291,13 +313,15 @@ registerRoute('patient-hospitals', () => {
 });
 
 registerEvents('patient-hospitals', () => {
-  // Init Google Map
+  // Init Leaflet Map with 6km radius
   initMap('map-hospitals', {
+    showRadius: true,
+    zoom: 13,
     markers: hospitals.map(h => ({
       lat: h.lat,
       lng: h.lng,
       title: h.shortName,
-      label: `${h.erCapacity.available} ER beds · ${h.distance} km`,
+      label: `${h.erCapacity.available} ER beds · ${h.distance} km · ${getStatusLabel(h.status)}`,
     })),
   });
 
@@ -357,9 +381,7 @@ registerRoute('patient-hospital-detail', () => {
         <div class="badge ${getStatusClass(h.status)}"><span class="badge__dot"></span> ${getStatusLabel(h.status)}</div>
       </div>
 
-      <div class="map-container" id="map-detail">
-        ${renderMapFallback('Loading map...')}
-      </div>
+      <div class="map-container" id="map-detail"></div>
 
       <div class="stat-row mb-4">
         <div class="stat">
@@ -506,11 +528,11 @@ registerRoute('patient-ambulance-request', () => {
 });
 
 registerEvents('patient-ambulance-request', () => {
-  document.getElementById('btn-confirm-ambulance')?.addEventListener('click', () => {
+  document.getElementById('btn-confirm-ambulance')?.addEventListener('click', oneShot('confirm-ambulance', () => {
     setState({ ambulanceRequested: true, ambulanceEta: 7, trackingCode: 'TRACK-001' });
     showToast({ title: 'Ambulance Dispatched! 🚑', message: 'ETA: ~7 minutes', icon: '✅', type: 'success', duration: 4000 });
     navigate('patient-tracking');
-  });
+  }));
   attachNavEvents();
   attachGlobalEvents();
 });
@@ -544,11 +566,11 @@ registerRoute('patient-tracking', () => {
 });
 
 registerEvents('patient-tracking', () => {
-  document.getElementById('btn-request-from-tracking')?.addEventListener('click', () => navigate('patient-ambulance-request'));
-  document.getElementById('btn-share-status')?.addEventListener('click', () => {
+  document.getElementById('btn-request-from-tracking')?.addEventListener('click', oneShot('req-from-track', () => navigate('patient-ambulance-request')));
+  document.getElementById('btn-share-status')?.addEventListener('click', oneShot('share-status', () => {
     const code = getState().trackingCode || 'TRACK-001';
     showToast({ title: 'Tracking Code: ' + code, message: 'Share this code with family members.', icon: '📤', type: 'info', duration: 5000 });
-  });
+  }));
 
   // Init tracking map
   const state = getState();
@@ -579,9 +601,7 @@ function renderTrackingView() {
   const h = hospitals.find(x => x.id === tracking?.hospitalId);
 
   return `
-    <div class="map-container map-container--large" id="map-tracking">
-      ${renderMapFallback('Live ambulance tracking')}
-    </div>
+    <div class="map-container map-container--large" id="map-tracking"></div>
 
     <div class="tracking-card">
       <div class="badge badge--info mb-2"><span class="badge__dot"></span> En Route</div>
@@ -665,13 +685,13 @@ registerRoute('family-home', () => {
 });
 
 registerEvents('family-home', () => {
-  document.getElementById('btn-family-track')?.addEventListener('click', () => {
+  document.getElementById('btn-family-track')?.addEventListener('click', oneShot('family-track', () => {
     const code = document.getElementById('family-tracking-input')?.value.trim().toUpperCase();
     if (trackingCodes[code]) { setState({ trackingCode: code }); navigate('family-tracking'); }
     else showToast({ title: 'Code Not Found', message: 'Try TRACK-001 or TRACK-002', icon: '⚠️', type: 'warning' });
-  });
-  document.getElementById('demo-code-1')?.addEventListener('click', () => { setState({ trackingCode: 'TRACK-001' }); navigate('family-tracking'); });
-  document.getElementById('demo-code-2')?.addEventListener('click', () => { setState({ trackingCode: 'TRACK-002' }); navigate('family-tracking'); });
+  }));
+  document.getElementById('demo-code-1')?.addEventListener('click', oneShot('demo-1', () => { setState({ trackingCode: 'TRACK-001' }); navigate('family-tracking'); }));
+  document.getElementById('demo-code-2')?.addEventListener('click', oneShot('demo-2', () => { setState({ trackingCode: 'TRACK-002' }); navigate('family-tracking'); }));
   attachNavEvents();
   attachGlobalEvents();
 });
@@ -705,9 +725,7 @@ registerRoute('family-tracking', () => {
         <div style="font-weight:700;font-size:var(--text-lg);">${tracking.patientName}</div>
       </div>
 
-      <div class="map-container map-container--large" id="map-family-tracking">
-        ${renderMapFallback('Live tracking')}
-      </div>
+      <div class="map-container map-container--large" id="map-family-tracking"></div>
 
       <div class="tracking-card">
         <div class="badge badge--info mb-2"><span class="badge__dot"></span> ${tracking.status === 'en_route' ? 'En Route' : 'In Progress'}</div>
@@ -801,9 +819,7 @@ registerRoute('ambulance-home', () => {
           </div>
         </div>
 
-        <div class="map-container mt-4" id="map-driver">
-          ${renderMapFallback('Loading route...')}
-        </div>
+        <div class="map-container mt-4" id="map-driver"></div>
 
         <button class="btn btn--primary btn--block btn--lg mt-4" id="btn-start-navigation">🗺️ Start Navigation</button>
         <button class="btn btn--apple btn--block mt-2" id="btn-complete-trip">✅ Mark Trip Complete</button>
@@ -839,12 +855,12 @@ registerEvents('ambulance-home', () => {
     showToast({ title: 'Status Updated', message: `You are now: ${e.target.options[e.target.selectedIndex].text}`, icon: '✅', type: 'success' });
     navigate('ambulance-home');
   });
-  document.getElementById('btn-start-navigation')?.addEventListener('click', () => {
+  document.getElementById('btn-start-navigation')?.addEventListener('click', oneShot('start-nav', () => {
     window.open(`https://www.google.com/maps/dir/?api=1&destination=${assignedHospital.lat},${assignedHospital.lng}`, '_blank');
-  });
-  document.getElementById('btn-complete-trip')?.addEventListener('click', () => {
+  }));
+  document.getElementById('btn-complete-trip')?.addEventListener('click', oneShot('complete-trip', () => {
     showToast({ title: 'Trip Completed! ✅', message: 'Ready for next assignment.', icon: '🎉', type: 'success' });
-  });
+  }));
   attachNavEvents();
   attachGlobalEvents();
 });
@@ -868,9 +884,7 @@ registerRoute('ambulance-assignment', () => {
         </div>
       </div>
 
-      <div class="map-container map-container--large" id="map-assignment">
-        ${renderMapFallback('Loading route...')}
-      </div>
+      <div class="map-container map-container--large" id="map-assignment"></div>
 
       <div class="section-title">Hospital Capacity</div>
       ${renderCapacitySection('Emergency Room', h.erCapacity)}
@@ -890,9 +904,9 @@ registerEvents('ambulance-assignment', () => {
     zoom: 14,
     markers: [{ lat: h.lat, lng: h.lng, title: h.shortName, label: h.address }],
   });
-  document.getElementById('btn-navigate')?.addEventListener('click', () => {
+  document.getElementById('btn-navigate')?.addEventListener('click', oneShot('open-nav', () => {
     window.open(`https://www.google.com/maps/dir/?api=1&destination=${h.lat},${h.lng}`, '_blank');
-  });
+  }));
   attachNavEvents();
   attachGlobalEvents();
 });

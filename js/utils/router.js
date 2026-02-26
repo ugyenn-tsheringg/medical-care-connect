@@ -3,6 +3,7 @@
    ============================================ */
 
 import { getState, setState } from './state.js';
+import { resetOneShots } from '../components/notification.js';
 
 const routes = {};
 
@@ -11,6 +12,7 @@ export function registerRoute(name, renderFn) {
 }
 
 export function navigate(pageName, params = {}) {
+    resetOneShots();
     setState({ currentPage: pageName, ...params });
 }
 
@@ -25,12 +27,10 @@ export function renderCurrentPage(container) {
         } else if (content instanceof HTMLElement) {
             container.appendChild(content);
         }
-        // Re-attach event listeners
         attachPageEvents(currentPage);
     }
 }
 
-// Page-specific event attachment
 const eventHandlers = {};
 
 export function registerEvents(page, handler) {
@@ -40,7 +40,6 @@ export function registerEvents(page, handler) {
 function attachPageEvents(page) {
     const handler = eventHandlers[page];
     if (handler) {
-        // Small delay to ensure DOM is ready
         requestAnimationFrame(() => handler());
     }
 }
