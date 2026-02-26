@@ -4,8 +4,8 @@
     "description": "Emergency medical care coordination — find hospitals, request ambulances, and stay connected.",
     "start_url": "/",
     "display": "standalone",
-    "background_color": "#0a0e1a",
-    "theme_color": "#0ea5e9",
+    "background_color": "#f2f2f7",
+    "theme_color": "#007aff",
     "orientation": "portrait",
     "icons": [
         {

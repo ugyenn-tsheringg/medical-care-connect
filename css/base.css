@@ -1,7 +1,7 @@
 /* ============================================
-   Base Reset & Global Styles
+   Base Reset & Global Styles — Apple Light
    ============================================ */
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
 *,
 *::before,
@@ -21,7 +21,7 @@ html {
 
 body {
     font-family: var(--font-sans);
-    background-color: var(--color-bg-primary);
+    background: var(--color-bg-primary);
     color: var(--color-text-primary);
     line-height: var(--leading-normal);
     min-height: 100dvh;
@@ -38,6 +38,7 @@ body {
     padding-top: var(--safe-top);
     padding-bottom: var(--safe-bottom);
     position: relative;
+    background: var(--gradient-page);
 }
 
 img,
@@ -64,41 +65,33 @@ textarea {
     font-size: var(--text-base);
     color: var(--color-text-primary);
     background: var(--color-bg-input);
-    border: 1px solid var(--color-surface-2);
-    border-radius: var(--radius-lg);
+    border: var(--border-light);
+    border-radius: var(--radius-md);
     padding: var(--space-3) var(--space-4);
     outline: none;
-    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+    transition: all var(--transition-fast);
     width: 100%;
 }
 
 input:focus,
 select:focus,
 textarea:focus {
+    background: var(--color-bg-input-focus);
     border-color: var(--color-brand);
     box-shadow: 0 0 0 3px var(--color-brand-glow);
 }
 
 a {
-    color: var(--color-brand-light);
+    color: var(--color-brand);
     text-decoration: none;
 }
 
 /* Scrollbar */
 ::-webkit-scrollbar {
-    width: 4px;
+    width: 0px;
 }
 
-::-webkit-scrollbar-track {
-    background: transparent;
-}
-
-::-webkit-scrollbar-thumb {
-    background: var(--color-surface-2);
-    border-radius: var(--radius-full);
-}
-
-/* Utility: visually hidden for accessibility */
+/* Utility: visually hidden */
 .sr-only {
     position: absolute;
     width: 1px;

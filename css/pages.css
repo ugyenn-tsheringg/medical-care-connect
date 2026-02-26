@@ -1,5 +1,5 @@
 /* ============================================
-   Page-Specific Styles
+   Pages — Apple Light Glassmorphism
    ============================================ */
 
 /* ---- Role Selection ---- */
@@ -8,7 +8,7 @@
     flex-direction: column;
     align-items: center;
     justify-content: center;
-    min-height: 85dvh;
+    min-height: 90dvh;
     padding: var(--space-8) var(--space-5);
     text-align: center;
 }
@@ -27,141 +27,132 @@
     justify-content: center;
     font-size: 2.5rem;
     margin: 0 auto var(--space-5);
-    box-shadow: var(--shadow-glow-lg);
-    animation: float 4s ease-in-out infinite;
+    box-shadow: var(--shadow-xl), 0 4px 20px rgba(0, 122, 255, 0.3);
+    animation: floatLogo 5s ease-in-out infinite;
 }
 
-@keyframes float {
+@keyframes floatLogo {
 
     0%,
     100% {
-        transform: translateY(0);
+        transform: translateY(0) scale(1);
     }
 
     50% {
-        transform: translateY(-8px);
+        transform: translateY(-6px) scale(1.02);
     }
 }
 
 .role-select__title {
-    font-size: var(--text-3xl);
-    font-weight: var(--font-bold);
+    font-size: var(--text-hero);
+    font-weight: var(--font-heavy);
+    letter-spacing: -0.03em;
+    color: var(--color-text-primary);
     margin-bottom: var(--space-2);
-    background: var(--gradient-brand);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
 }
 
 .role-select__tagline {
     font-size: var(--text-sm);
     color: var(--color-text-secondary);
-    max-width: 280px;
+    max-width: 300px;
     margin: 0 auto;
+    line-height: var(--leading-relaxed);
 }
 
 .role-select__grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: var(--space-4);
+    gap: var(--space-3);
     width: 100%;
     max-width: 360px;
 }
 
 .role-card {
-    background: var(--gradient-card);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: var(--color-bg-card);
+    backdrop-filter: saturate(150%) blur(16px);
+    -webkit-backdrop-filter: saturate(150%) blur(16px);
+    border: var(--border-light);
     border-radius: var(--radius-2xl);
-    padding: var(--space-6) var(--space-4);
+    padding: var(--space-5) var(--space-4);
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: var(--space-3);
+    gap: var(--space-2);
     cursor: pointer;
-    transition: all var(--transition-base);
-    position: relative;
-    overflow: hidden;
-}
-
-.role-card::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    right: 0;
-    height: 2px;
-    background: var(--gradient-brand);
-    opacity: 0;
-    transition: opacity var(--transition-base);
+    transition: all var(--transition-apple);
+    box-shadow: var(--shadow-card);
 }
 
 .role-card:active {
-    transform: scale(0.96);
+    transform: scale(0.95);
+    box-shadow: var(--shadow-card-hover);
 }
 
-.role-card:active::before,
-.role-card:hover::before {
-    opacity: 1;
+.role-card:hover {
+    box-shadow: var(--shadow-card-hover);
+    transform: translateY(-2px);
 }
 
 .role-card__icon {
-    width: 56px;
-    height: 56px;
+    width: 52px;
+    height: 52px;
     border-radius: var(--radius-xl);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 1.75rem;
+    font-size: 1.6rem;
 }
 
 .role-card__name {
     font-size: var(--text-sm);
     font-weight: var(--font-semibold);
+    color: var(--color-text-primary);
 }
 
 .role-card__desc {
     font-size: var(--text-xs);
     color: var(--color-text-muted);
-    line-height: var(--leading-relaxed);
 }
 
-/* Role icon backgrounds */
 .role-card--patient .role-card__icon {
-    background: rgba(14, 165, 233, 0.15);
+    background: var(--color-brand-bg-strong);
 }
 
 .role-card--family .role-card__icon {
-    background: rgba(168, 85, 247, 0.15);
+    background: rgba(175, 82, 222, 0.12);
 }
 
 .role-card--ambulance .role-card__icon {
-    background: rgba(239, 68, 68, 0.15);
+    background: var(--color-danger-bg-strong);
 }
 
 .role-card--admin .role-card__icon {
-    background: rgba(34, 197, 94, 0.15);
+    background: var(--color-success-bg-strong);
 }
 
 /* ---- Patient Home ---- */
 .patient-hero {
-    background: var(--gradient-hero);
+    background: var(--color-bg-card);
+    backdrop-filter: blur(16px);
+    border: var(--border-light);
     border-radius: var(--radius-2xl);
-    padding: var(--space-6);
-    margin-bottom: var(--space-6);
-    text-align: center;
-    border: 1px solid rgba(255, 255, 255, 0.04);
+    padding: var(--space-5);
+    margin-bottom: var(--space-5);
+    box-shadow: var(--shadow-card);
 }
 
 .patient-hero__greeting {
     font-size: var(--text-sm);
     color: var(--color-text-secondary);
-    margin-bottom: var(--space-1);
+    margin-bottom: 2px;
 }
 
 .patient-hero__title {
-    font-size: var(--text-2xl);
+    font-size: var(--text-xl);
     font-weight: var(--font-bold);
+    letter-spacing: -0.02em;
     margin-bottom: var(--space-4);
+    color: var(--color-text-primary);
 }
 
 .patient-hero__actions {
@@ -174,47 +165,49 @@
     display: flex;
     align-items: center;
     gap: var(--space-3);
-    padding: var(--space-4) var(--space-5);
+    padding: var(--space-4);
     border-radius: var(--radius-xl);
     font-weight: var(--font-semibold);
     transition: all var(--transition-fast);
     width: 100%;
     text-align: left;
+    border: var(--border-light);
 }
 
 .emergency-btn:active {
     transform: scale(0.97);
+    opacity: 0.8;
 }
 
 .emergency-btn--hospitals {
-    background: linear-gradient(135deg, rgba(14, 165, 233, 0.12), rgba(14, 165, 233, 0.04));
-    border: 1px solid rgba(14, 165, 233, 0.2);
-    color: var(--color-brand-light);
+    background: var(--color-brand-bg);
+    border-color: rgba(0, 122, 255, 0.12);
+    color: var(--color-brand);
 }
 
 .emergency-btn--ambulance {
-    background: linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(239, 68, 68, 0.04));
-    border: 1px solid rgba(239, 68, 68, 0.2);
-    color: #fca5a5;
+    background: var(--color-danger-bg);
+    border-color: rgba(255, 59, 48, 0.12);
+    color: var(--color-danger);
 }
 
 .emergency-btn__icon {
-    width: 44px;
-    height: 44px;
+    width: 42px;
+    height: 42px;
     border-radius: var(--radius-lg);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: var(--text-xl);
+    font-size: var(--text-lg);
     flex-shrink: 0;
 }
 
 .emergency-btn--hospitals .emergency-btn__icon {
-    background: rgba(14, 165, 233, 0.2);
+    background: var(--color-brand-bg-strong);
 }
 
 .emergency-btn--ambulance .emergency-btn__icon {
-    background: rgba(239, 68, 68, 0.2);
+    background: var(--color-danger-bg-strong);
 }
 
 .emergency-btn__text {
@@ -230,25 +223,27 @@
 .emergency-btn__sub {
     font-size: var(--text-xs);
     color: var(--color-text-muted);
-    margin-top: 2px;
+    margin-top: 1px;
 }
 
 /* ---- Hospital List ---- */
 .hospitals-list {
     display: flex;
     flex-direction: column;
-    gap: var(--space-4);
+    gap: var(--space-3);
 }
 
 .hospital-card {
-    background: var(--gradient-card);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: var(--color-bg-card);
+    backdrop-filter: blur(12px);
+    border: var(--border-light);
     border-radius: var(--radius-xl);
-    padding: var(--space-5);
+    padding: var(--space-4);
     cursor: pointer;
-    transition: all var(--transition-base);
+    transition: all var(--transition-apple);
     position: relative;
     overflow: hidden;
+    box-shadow: var(--shadow-card);
 }
 
 .hospital-card::before {
@@ -258,6 +253,7 @@
     left: 0;
     bottom: 0;
     width: 3px;
+    border-radius: 3px 0 0 3px;
 }
 
 .hospital-card--available::before {
@@ -274,18 +270,20 @@
 
 .hospital-card:active {
     transform: scale(0.98);
+    box-shadow: var(--shadow-card-hover);
 }
 
 .hospital-card__top {
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: var(--space-3);
+    margin-bottom: var(--space-2);
 }
 
 .hospital-card__name {
     font-size: var(--text-base);
     font-weight: var(--font-semibold);
+    color: var(--color-text-primary);
     margin-bottom: 2px;
 }
 
@@ -303,7 +301,7 @@
 .hospital-card__stat {
     display: flex;
     align-items: center;
-    gap: var(--space-1);
+    gap: 3px;
     font-size: var(--text-xs);
     color: var(--color-text-secondary);
 }
@@ -316,8 +314,8 @@
 .hospital-detail__info {
     display: flex;
     flex-direction: column;
-    gap: var(--space-4);
-    margin-bottom: var(--space-6);
+    gap: var(--space-1);
+    margin-bottom: var(--space-5);
 }
 
 .info-row {
@@ -325,17 +323,22 @@
     align-items: center;
     gap: var(--space-3);
     padding: var(--space-3) 0;
+    border-bottom: var(--border-light);
+}
+
+.info-row:last-child {
+    border-bottom: none;
 }
 
 .info-row__icon {
-    width: 40px;
-    height: 40px;
-    border-radius: var(--radius-lg);
+    width: 38px;
+    height: 38px;
+    border-radius: var(--radius-md);
     background: var(--color-surface-1);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: var(--text-lg);
+    font-size: var(--text-base);
     flex-shrink: 0;
 }
 
@@ -347,44 +350,45 @@
     font-size: var(--text-xs);
     color: var(--color-text-muted);
     text-transform: uppercase;
-    letter-spacing: 0.05em;
+    letter-spacing: 0.04em;
 }
 
 .info-row__value {
     font-size: var(--text-sm);
     font-weight: var(--font-medium);
-    margin-top: 2px;
+    color: var(--color-text-primary);
+    margin-top: 1px;
 }
 
-/* ---- Ambulance Tracking ---- */
+/* ---- Tracking Card ---- */
 .tracking-card {
-    background: var(--gradient-card);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: var(--color-bg-card);
+    backdrop-filter: blur(16px);
+    border: var(--border-light);
     border-radius: var(--radius-2xl);
-    padding: var(--space-6);
+    padding: var(--space-5);
     text-align: center;
+    box-shadow: var(--shadow-card);
 }
 
 .tracking-card__eta {
     font-size: var(--text-4xl);
-    font-weight: var(--font-bold);
-    background: var(--gradient-brand);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    margin-bottom: var(--space-1);
+    font-weight: var(--font-heavy);
+    color: var(--color-brand);
+    letter-spacing: -0.03em;
+    margin-bottom: 2px;
 }
 
 .tracking-card__eta-label {
     font-size: var(--text-sm);
     color: var(--color-text-muted);
-    margin-bottom: var(--space-6);
+    margin-bottom: var(--space-5);
 }
 
 .tracking-steps {
     display: flex;
     flex-direction: column;
-    gap: var(--space-4);
+    gap: var(--space-3);
     text-align: left;
 }
 
@@ -395,66 +399,69 @@
 }
 
 .tracking-step__indicator {
-    width: 32px;
-    height: 32px;
+    width: 30px;
+    height: 30px;
     border-radius: 50%;
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: var(--text-sm);
+    font-size: var(--text-xs);
     flex-shrink: 0;
     background: var(--color-surface-1);
     color: var(--color-text-muted);
-    position: relative;
+    font-weight: var(--font-semibold);
 }
 
 .tracking-step--completed .tracking-step__indicator {
-    background: var(--color-success-bg);
-    color: var(--color-success);
+    background: var(--color-success-bg-strong);
+    color: #1b8d3a;
 }
 
 .tracking-step--active .tracking-step__indicator {
-    background: var(--color-brand-glow);
+    background: var(--color-brand-bg-strong);
     color: var(--color-brand);
-    box-shadow: var(--shadow-glow);
+    box-shadow: 0 0 0 3px var(--color-brand-glow);
 }
 
 .tracking-step__content {
-    padding-top: var(--space-1);
+    padding-top: 4px;
 }
 
 .tracking-step__title {
     font-size: var(--text-sm);
-    font-weight: var(--font-semibold);
+    font-weight: var(--font-medium);
+    color: var(--color-text-primary);
 }
 
 .tracking-step__time {
     font-size: var(--text-xs);
     color: var(--color-text-muted);
-    margin-top: 2px;
+    margin-top: 1px;
 }
 
-/* ---- Family Tracking ---- */
+/* ---- Family ---- */
 .family-code-input {
     display: flex;
     gap: var(--space-3);
-    margin-bottom: var(--space-6);
+    margin-bottom: var(--space-5);
 }
 
 .family-code-input input {
     flex: 1;
 }
 
-/* ---- Ambulance Driver ---- */
+/* ---- Driver ---- */
 .driver-status {
     display: flex;
     align-items: center;
     justify-content: space-between;
-    padding: var(--space-4) var(--space-5);
-    background: var(--gradient-card);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    padding: var(--space-4);
+    background: var(--color-bg-card);
+    backdrop-filter: blur(12px);
+    border: var(--border-light);
     border-radius: var(--radius-xl);
     margin-bottom: var(--space-4);
+    box-shadow: var(--shadow-card);
 }
 
 .driver-status__info {
@@ -465,7 +472,8 @@
 
 .driver-status__label {
     font-size: var(--text-sm);
-    font-weight: var(--font-medium);
+    font-weight: var(--font-semibold);
+    color: var(--color-text-primary);
 }
 
 .driver-status__value {
@@ -474,25 +482,28 @@
 }
 
 .assignment-card {
-    background: var(--gradient-card);
-    border: 1.5px solid rgba(14, 165, 233, 0.3);
+    background: var(--color-bg-card);
+    backdrop-filter: blur(14px);
+    border: var(--border-brand);
     border-radius: var(--radius-2xl);
-    padding: var(--space-6);
+    padding: var(--space-5);
+    box-shadow: var(--shadow-card);
 }
 
 .assignment-card__label {
     font-size: var(--text-xs);
-    color: var(--color-brand-light);
+    color: var(--color-brand);
     text-transform: uppercase;
-    letter-spacing: 0.1em;
+    letter-spacing: 0.08em;
     font-weight: var(--font-semibold);
-    margin-bottom: var(--space-3);
+    margin-bottom: var(--space-2);
 }
 
 .assignment-card__hospital {
     font-size: var(--text-xl);
     font-weight: var(--font-bold);
-    margin-bottom: var(--space-1);
+    color: var(--color-text-primary);
+    margin-bottom: 2px;
 }
 
 .assignment-card__address {
@@ -504,51 +515,58 @@
 .assignment-card__meta {
     display: flex;
     gap: var(--space-4);
+    flex-wrap: wrap;
 }
 
 .assignment-card__meta-item {
     display: flex;
     align-items: center;
-    gap: var(--space-2);
-    font-size: var(--text-sm);
+    gap: var(--space-1);
+    font-size: var(--text-xs);
     color: var(--color-text-secondary);
 }
 
-/* ---- Admin Dashboard ---- */
+/* ---- Admin ---- */
 .admin-grid {
     display: grid;
     grid-template-columns: 1fr 1fr;
-    gap: var(--space-4);
-    margin-bottom: var(--space-6);
+    gap: var(--space-3);
+    margin-bottom: var(--space-5);
 }
 
 .admin-stat-card {
-    background: var(--gradient-card);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: var(--color-bg-card);
+    backdrop-filter: blur(12px);
+    border: var(--border-light);
     border-radius: var(--radius-xl);
-    padding: var(--space-5);
+    padding: var(--space-4);
     text-align: center;
+    box-shadow: var(--shadow-card);
 }
 
 .admin-stat-card__value {
     font-size: var(--text-3xl);
     font-weight: var(--font-bold);
-    margin-bottom: var(--space-1);
+    letter-spacing: -0.02em;
+    margin-bottom: 2px;
 }
 
 .admin-stat-card__label {
-    font-size: var(--text-xs);
+    font-size: 0.625rem;
     color: var(--color-text-muted);
     text-transform: uppercase;
     letter-spacing: 0.05em;
+    font-weight: var(--font-semibold);
 }
 
 .capacity-control {
-    background: var(--gradient-card);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    background: var(--color-bg-card);
+    backdrop-filter: blur(12px);
+    border: var(--border-light);
     border-radius: var(--radius-xl);
-    padding: var(--space-5);
+    padding: var(--space-4);
     margin-bottom: var(--space-3);
+    box-shadow: var(--shadow-card);
 }
 
 .capacity-control__header {
@@ -559,12 +577,13 @@
 }
 
 .capacity-control__name {
-    font-size: var(--text-base);
+    font-size: var(--text-sm);
     font-weight: var(--font-semibold);
+    color: var(--color-text-primary);
 }
 
 .capacity-control__count {
-    font-size: var(--text-lg);
+    font-size: var(--text-base);
     font-weight: var(--font-bold);
     color: var(--color-brand);
 }
@@ -580,20 +599,22 @@
     display: flex;
     align-items: center;
     gap: var(--space-3);
-    padding: var(--space-4);
-    background: var(--gradient-card);
-    border: 1px solid rgba(255, 255, 255, 0.06);
+    padding: var(--space-3) var(--space-4);
+    background: var(--color-bg-card);
+    backdrop-filter: blur(10px);
+    border: var(--border-light);
     border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-card);
 }
 
 .queue-item__icon {
-    width: 40px;
-    height: 40px;
-    border-radius: var(--radius-lg);
+    width: 38px;
+    height: 38px;
+    border-radius: var(--radius-md);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: var(--text-lg);
+    font-size: var(--text-base);
     flex-shrink: 0;
 }
 
@@ -604,12 +625,13 @@
 .queue-item__name {
     font-size: var(--text-sm);
     font-weight: var(--font-semibold);
+    color: var(--color-text-primary);
 }
 
 .queue-item__detail {
     font-size: var(--text-xs);
     color: var(--color-text-secondary);
-    margin-top: 2px;
+    margin-top: 1px;
 }
 
 .queue-item__eta {
@@ -618,26 +640,26 @@
     color: var(--color-brand);
 }
 
-/* ---- Demo Reset Button ---- */
+/* ---- Demo Reset ---- */
 .demo-reset {
     position: fixed;
     bottom: calc(70px + var(--safe-bottom));
     right: var(--space-4);
-    width: 44px;
-    height: 44px;
+    width: 40px;
+    height: 40px;
     border-radius: 50%;
-    background: var(--color-surface-1);
-    border: 1px solid rgba(255, 255, 255, 0.1);
+    background: var(--color-bg-card);
+    backdrop-filter: blur(10px);
+    border: var(--border-light);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: var(--text-lg);
+    font-size: var(--text-base);
     z-index: var(--z-card);
-    box-shadow: var(--shadow-lg);
+    box-shadow: var(--shadow-md);
     transition: all var(--transition-fast);
 }
 
 .demo-reset:active {
-    transform: scale(0.9);
-    background: var(--color-surface-2);
+    transform: scale(0.88);
 }

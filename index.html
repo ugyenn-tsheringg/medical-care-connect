@@ -1,27 +1,35 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no" />
 
   <!-- SEO & Meta -->
   <title>Medical Care Connect — Emergency Medical Coordination</title>
-  <meta name="description" content="Find nearby hospitals, request ambulances, and coordinate emergency medical care in real-time. A prototype iOS WPA for medical care coordination." />
-  <meta name="theme-color" content="#0ea5e9" />
+  <meta name="description"
+    content="Find nearby hospitals, request ambulances, and coordinate emergency medical care in real-time. An iOS WPA for medical care coordination near Chandigarh University." />
+  <meta name="theme-color" content="#007aff" />
 
   <!-- iOS WPA / PWA -->
   <meta name="apple-mobile-web-app-capable" content="yes" />
-  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <meta name="apple-mobile-web-app-title" content="MedConnect" />
   <link rel="apple-touch-icon" href="/icons/icon-192.png" />
   <link rel="manifest" href="/manifest.json" />
 
-  <!-- Preconnect Google Fonts -->
+  <!-- Google Fonts -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+
+  <!-- Google Maps -->
+  <script src="https://maps.googleapis.com/maps/api/js?key=AIzaSyBEqh34GFo3LDdv9X50v9lmni-DWaIFsOA&libraries=places"
+    async defer></script>
 </head>
+
 <body>
   <div id="app"></div>
   <script type="module" src="/js/app.js"></script>
 </body>
+
 </html>
